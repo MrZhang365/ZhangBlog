@@ -1,0 +1,11 @@
+p {
+    word-wrap: break-word;
+    word-break: break-all;
+    max-width: 100%;
+    white-space: normal;
+}
+
+mark {
+    background-color: #44FF00 !important; 
+    color: #000 !important;
+}

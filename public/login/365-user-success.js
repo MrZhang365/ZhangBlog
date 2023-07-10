@@ -1,0 +1,1 @@
+window.onload = setTimeout(() => location.href = '/', 3000)

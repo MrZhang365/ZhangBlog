@@ -1,0 +1,27 @@
+{
+  "name": "zhang-blog",
+  "version": "1.0.0",
+  "description": "小张博客",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/MrZhang365/ZhangBlog.git"
+  },
+  "author": "MrZhang365",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/MrZhang365/ZhangBlog/issues"
+  },
+  "homepage": "https://github.com/MrZhang365/ZhangBlog#readme",
+  "dependencies": {
+    "aes256": "^1.1.0",
+    "cookie": "^0.5.0",
+    "express": "^4.18.2",
+    "mongodb": "^5.6.0",
+    "uuid": "^9.0.0"
+  },
+  "type": "module"
+}

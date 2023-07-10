@@ -1,0 +1,1 @@
+window.onload = setTimeout(() => location.href = '/admin', 3000)
