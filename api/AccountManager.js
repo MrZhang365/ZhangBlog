@@ -65,7 +65,7 @@ export default class {
         if ((await this.db.select('users', { admin: true })).length === 0) isAdmin = true
         await this.db.insert('users', {
             id: userInfo.id,
-            username: userInfo.name,
+            username: userInfo.login,
             admin: isAdmin,
             banned: false,
             ip: userInfo.ip,

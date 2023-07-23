@@ -38,8 +38,12 @@ router.get('/github-callback', async (req, res) => {
 
     const user = await app.accounts.getUserById(userInfo.id)
 
+    if (user.banned) return res.redirect('/login/error-account-banned.html')
+
     const userAes = strToAes(user.id.toString(), process.env.AES_KEY)
-    res.cookie('account', userAes)
+    res.cookie('account', userAes, {
+        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    })
 
     if (user.admin) return res.redirect('/login/success-admin.html')
     else return res.redirect('/login/success-user.html')

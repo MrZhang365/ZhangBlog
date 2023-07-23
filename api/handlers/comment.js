@@ -24,7 +24,10 @@ router.post('/publish', async (req, res) => {
     }
 
     if (typeof parent === 'string') {
-        if ((!await app.db.select('comments', { id: parent }))[0]) return res.status(404).end()
+        const parentComment = (await app.db.select('comments', { id: parent }))[0]
+        if (!parentComment) return res.status(404).end()
+        if (typeof parentComment.parent === 'string') return res.status(400).end()
+        
         comment.parent = parent
     }
 
@@ -34,7 +37,7 @@ router.post('/publish', async (req, res) => {
     })
 })
 
-async function makeComment(comment) {
+async function makeComment(comment, admin = false) {
     var c = {
         id: comment.id,
         article: comment.article,
@@ -44,11 +47,13 @@ async function makeComment(comment) {
         replys: []
     }
 
-    const replys = await app.db.select('comments', { parent: comment.id })
+    if (admin) c.ip = comment.ip
+
+    const replys = (await app.db.select('comments', { parent: comment.id })).sort((a, b) => a.time - b.time)
 
     if (replys.length > 0) {
         for (let i of replys) {
-            c.replys.push(await makeComment(i))
+            c.replys.push(await makeComment(i, admin))
         }
     }
 
@@ -68,6 +73,35 @@ router.get('/get', async (req, res) => {
     for (let i of comments) {
         if (typeof i.parent === 'string') continue
         payload.push(await makeComment(i))
+    }
+
+    res.json(payload)
+})
+
+router.post('/delete', async (req, res) => {
+    if (!req.account.admin) return res.status(401).end()
+    if (!req.body) return res.status(400).end()
+    if (typeof req.body.id !== 'string') return res.status(400).end()
+
+    const id = req.body.id
+    await app.db.delete('comments', {
+        id
+    })
+    await app.db.delete('comments', {
+        parent: id
+    })
+    res.json({})
+})
+
+router.get('/get-all', async (req, res) => {
+    if (!req.account.admin) return res.status(401).end()
+
+    const comments = (await app.db.select('comments', {  })).sort((a, b) => b.time - a.time)
+    var payload = []
+
+    for (let i of comments) {
+        if (typeof i.parent === 'string') continue
+        payload.push(await makeComment(i, true))
     }
 
     res.json(payload)

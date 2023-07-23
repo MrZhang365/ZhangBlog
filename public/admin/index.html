@@ -37,11 +37,14 @@
             <div class="mdui-tab mdui-tab-full-width" mdui-tab>
                 <a href="#articles-edit" class="mdui-ripple">修改文章</a>
                 <a href="#publish" class="mdui-ripple">发表文章</a>
+                <a href="#comments" class="mdui-ripple">评论管理</a>
+                <a href="#comment-config" class="mdui-ripple">评论区配置</a>
             </div>
             <div class="mdui-row">
-                <div id="articles-edit" class="mdui-col-sm-8 mdui-col-offset-sm-2">
+                <div id="articles-edit" class="mdui-col-sm-8 mdui-col-offset-sm-2 mdui-typo">
+                    <h1>编辑文章</h1>
                     <div class="mdui-panel mdui-panel-popout" mdui-panel id="articles">
-
+                        <!--动态添加-->
                     </div>
                 </div>
                 <div id="publish" class="mdui-col-sm-8 mdui-col-offset-sm-2 mdui-typo">
@@ -60,6 +63,46 @@
                         <br>
                         <button type="submit" class="mdui-btn mdui-btn-block mdui-btn-raised mdui-ripple mdui-color-theme-accent"><i class="mdui-icon material-icons">&#xe255;</i>发布</button>
                     </form>
+                </div>
+                <div id="comments" class="mdui-col-sm-8 mdui-col-offset-sm-2 mdui-typo">
+                    <h1>评论管理 <small>请遵循公平正义的原则 请勿乱删评论“控评”</small></h1>
+
+                    <!--难度太大 先隐藏起来 以后再写-->
+                    <div class="mdui-hidden">
+                        <div class="mdui-textfield mdui-textfield-expandable">
+                            <button class="mdui-textfield-icon mdui-btn mdui-btn-icon">
+                                <i class="mdui-icon material-icons">&#xe8b6;</i>
+                            </button>
+                            <input id="search" class="mdui-textfield-input" type="text" placeholder="搜索评论">
+                            <button class="mdui-textfield-close mdui-btn mdui-btn-icon">
+                                <i class="mdui-icon material-icons">&#xe5cd;</i>
+                            </button>
+                        </div>
+                        <br>
+                        <p>按照
+                            <select id="search-by" class="mdui-select" mdui-select>
+                                <option value="content" selected>关键词</option>
+                                <option value="nick">发布者</option>
+                                <option value="ip">发布IP</option>
+                                <option value="article">文章ID</option>
+                            </select>
+                            搜索
+                        </p>
+                    </div>
+                    <hr>
+                    <div id="comments-div">
+                        <!--交给脚本加载评论-->
+                    </div>
+                </div>
+                <div id="comment-config" class="mdui-col-sm-8 mdui-col-offset-sm-2 mdui-typo">
+                    <h1>评论区配置</h1>
+                    <p>
+                        全局禁止发送评论
+                        <label class="mdui-switch mdui-float-right">
+                            <input id="disable-comment" type="checkbox">
+                            <i class="mdui-switch-icon"></i>
+                        </label>
+                    </p>
                 </div>
             </div>
         </div>

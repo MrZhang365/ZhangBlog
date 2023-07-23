@@ -55,6 +55,8 @@ router.post('/edit', async (req, res) => {
 router.post('/delete', async (req, res) => {
     if (!req.account.admin) return res.status(401).end()
     if (!req.body) return res.status(400).end()
+    if (!req.body.id) return res.status(400).end()
+
     const id = req.body.id
     if (typeof id !== 'string' || !id) return res.status(400).end()
 
@@ -62,6 +64,7 @@ router.post('/delete', async (req, res) => {
     if (!article) return res.status(404).end()
 
     await app.db.delete('articles', { id: id })
+    await app.db.delete('comments', { article: id })
     res.status(200).json({  })    // 返回空的JSON，因为客户端只会解析JSON
 })
 

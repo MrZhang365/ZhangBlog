@@ -136,6 +136,166 @@ function pushArticle(article) {
     mdui.mutation()
 }
 
+function confirmDelete() {
+    return new Promise(res => {
+        mdui.confirm('请遵循公平正义的原则 请勿乱删评论“控评”<br>您确定要删除这条评论吗？其子评论也会被删除<br>此操作无法撤销', '严重警告', () => res(true), () => res(false), {
+            confirmText: '我确定要删除这条评论',
+            cancelText: '我是傻逼，我点错了'
+        })
+    })
+}
+
+async function handleDelete(e) {
+    e.preventDefault()
+    const id = e.target.getAttribute('data-id')
+
+    if (!await confirmDelete()) return
+    try{
+        await post('/api/comment/delete', {
+            id
+        })
+        location.reload()
+    } catch(e) {
+        mdui.alert(`评论删除失败`, ': (', undefined, {
+            confirmText: '确定'
+        })
+    }
+}
+
+function showComment(comment) {
+    const div = document.createElement('div')
+    div.classList.add('mdui-hoverable', 'mdui-p-a-2')
+    div.setAttribute('data-info', JSON.stringify({
+        author: comment.nick,
+        ip: comment.ip,
+        content: comment.content,
+        article: comment.article,
+        child: false,
+    }))
+
+    const titleH4 = document.createElement('h4')
+    titleH4.textContent = comment.nick
+    div.appendChild(titleH4)
+
+    const timeP = document.createElement('p')
+    timeP.textContent = '写于 '
+
+    const timeU = document.createElement('u')
+    timeU.textContent = (new Date(comment.time)).toLocaleString()
+    timeP.appendChild(timeU)
+    div.appendChild(timeP)
+
+    const ipP = document.createElement('p')
+    ipP.textContent = '发布IP '
+
+    const ipU = document.createElement('u')
+    ipU.textContent = comment.ip
+    ipP.appendChild(ipU)
+    div.appendChild(ipP)
+
+    const articleP = document.createElement('p')
+
+    const articleLink = document.createElement('a')
+    articleLink.textContent = '点击此处查看对应文章'
+    articleLink.href = '/article/#' + comment.article
+    articleLink.target = '_blank'
+    articleP.appendChild(articleLink)
+    div.appendChild(articleP)
+
+    const deleteBtn = document.createElement('button')
+    deleteBtn.type = 'button'
+    deleteBtn.setAttribute('data-id', comment.id)
+    deleteBtn.classList.add('mdui-btn', 'mdui-btn-raised', 'mdui-ripple', 'mdui-color-red', 'zhangsoft-delete-comment')
+    deleteBtn.textContent = '删除评论'
+    div.appendChild(deleteBtn)
+    div.appendChild(document.createElement('br'))
+    div.appendChild(document.createElement('br'))
+
+    const content = md.render(comment.content)
+    div.innerHTML += content
+
+    $('comments-div').appendChild(div)
+
+    if (comment.replys.length > 0) {
+        const panelParent = document.createElement('div')
+        panelParent.classList.add('mdui-panel')
+        panelParent.setAttribute('mdui-panel', '')
+
+        const panel = document.createElement('div')
+        panel.classList.add('mdui-panel-item')
+        panelParent.appendChild(panel)
+
+        const header = document.createElement('div')
+        header.textContent = '回复'
+        header.classList.add('mdui-panel-item-header')
+        panel.appendChild(header)
+
+        const body = document.createElement('div')
+        body.classList.add('mdui-panel-item-body')
+        panel.appendChild(body)
+
+        for (let c of comment.replys) {
+            let div = document.createElement('div')
+            div.setAttribute('data-info', JSON.stringify({
+                author: c.nick,
+                ip: c.ip,
+                content: c.content,
+                article: c.article,
+                child: true,
+            }))
+
+            let titleH4 = document.createElement('h4')
+            titleH4.textContent = c.nick
+            div.appendChild(titleH4)
+
+            let timeP = document.createElement('p')
+            timeP.textContent = '写于 '
+
+            let timeU = document.createElement('u')
+            timeU.textContent = (new Date(c.time)).toLocaleString()
+            timeP.appendChild(timeU)
+            div.appendChild(timeP)
+
+            let ipP = document.createElement('p')
+            ipP.textContent = '发布IP '
+
+            let ipU = document.createElement('u')
+            ipU.textContent = c.ip
+            ipP.appendChild(ipU)
+            div.appendChild(ipP)
+
+            let delBtn = document.createElement('button')
+            delBtn.type = 'button'
+            delBtn.setAttribute('data-id', c.id)
+            delBtn.classList.add('mdui-btn', 'mdui-btn-raised', 'mdui-ripple', 'mdui-color-red', 'zhangsoft-delete-comment')
+            delBtn.textContent = '删除评论'
+            div.appendChild(delBtn)
+            div.appendChild(document.createElement('br'))
+            div.appendChild(document.createElement('br'))
+
+            let content = md.render(c.content)
+            div.innerHTML += content
+
+            body.appendChild(div)
+            body.appendChild(document.createElement('hr'))
+        }
+        
+        div.appendChild(panelParent)
+        mdui.mutation()
+    }
+
+    $('comments-div').appendChild(document.createElement('hr'))
+    for (let e of document.getElementsByClassName('zhangsoft-delete-comment')) {
+        e.onclick = handleDelete
+    }
+}
+
+async function initComments() {
+    const comments = await get('/api/comment/get-all')
+    window.comments = comments
+    comments.forEach(showComment)
+}
+
 async function loadArticles() {
     const articleList = await get('/api/article/all')
     articleList.forEach(a => {
@@ -146,10 +306,46 @@ async function loadArticles() {
 async function checkLogin() {
     const result = await get('/api/auth/account-get')
 
-    if (!result.admin) return location.href = '/login/'
+    if (!result.admin) {
+        location.href = '/login/'
+        return
+    }
     return true
 }
 
+/* 难度太大 暂时不写
+function initSearch() {
+    $('search').oninput = (e) => {
+        const searchType = $('search-by').value
+        const target = e.target.value.trim().toLowerCase()
+
+        if (!Array.isArray(window.comments)) return mdui.snackbar('评论列表尚未请求成功 同志仍需等待', {
+            position: 'right-bottom'
+        })
+
+        if (!target) {
+            $('comments-div').innerHTML = ''
+            return window.comments.forEach(showComment)
+        }
+
+        //const co = window.comments.filter(c => c[searchType].toLowerCase().includes(target))
+        const copy = Array.from(window.comments)
+        const co = copy.map(c => {
+            if (c[searchType].toLowerCase().includes(target)) return c
+            c.replys = c.replys.filter(com => com[searchType].toLowerCase().includes(target))
+            if (c.replys.length === 0) return false
+            return c
+        }).filter(c => c !== false)
+        $('comments-div').innerHTML = ''
+        co.forEach(showComment)
+    }
+}
+*/
+
 checkLogin().then(r => {
-    if (r) loadArticles()
+    if (r) {
+        loadArticles()
+        initComments()
+        // initSearch()    // 难度太大 暂时不写
+    }
 })
