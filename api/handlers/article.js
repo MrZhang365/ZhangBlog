@@ -1,4 +1,4 @@
-// 获取首页信息
+// 获取文章信息
 import { Router } from 'express'
 import * as uuid from 'uuid'
 

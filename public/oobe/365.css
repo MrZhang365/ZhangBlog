@@ -1,0 +1,18 @@
+@import url('/365.css');
+
+.paperee-flash {
+    /* 此动画来源于：纸片君ee */
+    animation: oobe 5s none infinite;
+}
+
+@keyframes oobe {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}

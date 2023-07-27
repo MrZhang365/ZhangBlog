@@ -1,0 +1,7 @@
+@import url('/365.css');
+
+.upload-div {
+    width: 40%;
+    height: 30%;
+    border-style: dashed;
+}

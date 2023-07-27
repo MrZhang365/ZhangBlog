@@ -16,7 +16,7 @@ export async function load() {
             if (typeof loaded.handler !== 'function') throw new TypeError(`This module has a f**king handler function`)
             modules[i] = loaded
         } catch(e) {
-            console.error(`Filed to load ${i}: ${e.message}`)
+            console.error(`Failed to load ${i}: ${e.message}`)
         }
     }
     return modules

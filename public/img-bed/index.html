@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+
+        <title>ZhangBlog内置图床</title>
+
+        <!--MDUI's CSS-->
+        <link rel="stylesheet" href="https://unpkg.com/mdui@1.0.2/dist/css/mdui.min.css">
+
+        <!--我自己的CSS-->
+        <link rel="stylesheet" href="365.css">
+
+        <!--下面的代码（含被引用的文件）来自 hack.chat 开源项目 client/index.html client/vendor-->
+        <!--加载 KaTeX 和 remarkable-katex-->
+        <link rel="stylesheet" href="../lib/katex/katex.min.css">
+        <script src="../lib/katex/katex.min.js"></script>
+        <script src="../lib/remarkable-katex/remarkableKatex.min.js"></script>
+
+        <!--加载 HighLight.js-->
+        <script src="../lib/hljs/highlight.min.js"></script>
+        <link id="highlight-link" rel="stylesheet" href="../lib/hljs/styles/hybrid.min.css">
+
+        <!--加载remarkable-->
+        <script src="../lib/remarkable/remarkable.min.js"></script>
+
+        <!--引用的代码结束-->
+        <!--一键初始化markdown-->
+        <script src="../lib/init-markdown.js"></script>
+    </head>
+    <body class="mdui-theme-layout-auto mdui-theme-primary-light-green mdui-theme-accent-green">
+        <header class="mdui-toolbar mdui-color-theme">
+            <a class="mdui-typo-title" id="title" href="/">ZhangBlog - 小张博客</a>
+            <div class="mdui-toolbar-spacer"></div>
+        </header>
+        <div class="mdui-container-fluid">
+            <div class="mdui-tab mdui-tab-full-width" mdui-tab>
+                <a href="#upload" class="mdui-ripple">上传图片</a>
+                <a href="#manager" class="mdui-ripple">图片管理</a>
+            </div>
+            <div class="mdui-row">
+                <br>
+                <div id="upload" class="mdui-col-sm-8 mdui-col-offset-sm-2 mdui-typo mdui-hoverable mdui-p-a-2">
+                    <h1>上传图片</h1>
+                    <div id="select-file-area" class="upload-div mdui-center mdui-text-center mdui-text-capitalize">
+                        <i class="mdui-icon material-icons">&#xe24d;</i>
+                        <br>
+                        <p>把文件拖动到这里</p>
+                        <p>或者点击 <a id="select-file-btn">此处</a> 上传</p>
+                        <p id="message"></p>
+                        <input id="file-select" class="mdui-hidden" type="file" accept="image/*">
+                    </div>
+                    <br>
+                    <button id="upload-btn" class="mdui-btn mdui-btn-block mdui-btn-raised mdui-ripple mdui-color-theme-accent" type="button">上传</button>
+                    <div id="info">
+                        <p>链接：<code id="link"></code> <a id="copy-link">复制</a></p>
+                        <p>Markdown：<code id="markdown"></code> <a id="copy-markdown">复制</a></p>
+                    </div>
+                </div>
+                <div id="manager" class="mdui-col-sm-8 mdui-col-offset-sm-2 mdui-typo mdui-hoverable mdui-p-a-2">
+                    <h1>图片管理</h1>
+                    <div class="mdui-panel mdui-panel-popout" mdui-panel id="images">
+                        <!--动态添加-->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://unpkg.com/mdui@1.0.2/dist/js/mdui.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/2.0.1/remarkable.min.js" integrity="sha512-skYYbQHAuOTpeJTthhUH3flZohep8blA+qjZOY0VqmfXMDiYcWxu29F5UbxU4LxaIpGkRBk+3Qf8qaXfd9jngg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="../lib/select-element.js"></script>
+        <script src="../lib/http.js"></script>
+        <script src="365.js"></script>
+    </body>
+</html>
