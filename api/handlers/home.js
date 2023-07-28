@@ -5,10 +5,30 @@ const router = Router()
 router.get('/', async (req, res) => {
     const payload = {}
     
-    payload.articles = (await app.db.select('articles', {})).map(a => {
-        if (a.content.length > 60) a.content = a.content.slice(0, 60) + '...'    // 如果文章内容超过20个字，则截取前20字并加上省略号
+    // ********** 处理文章列表 开始 **********
+    const articles = (await app.db.select('articles', {})).map(a => {
+        if (a.content.length > 60) a.content = a.content.slice(0, 60) + '...'    // 如果文章内容超过60个字，则截取前60字并加上省略号
         return a
     }).sort((a, b) => b.time - a.time)    // 获取全部文章，然后处理一下
+
+    const pages = []
+	for (let i = 0; i < Math.ceil(articles.length / 10); i++) {
+		pages.push([])
+	}
+	for (let i in pages) {
+		pages[i] = articles.splice(0, 10)
+	}
+
+    var index = Number.parseInt(req.query.index) - 1
+    if (isNaN(index) || index < 0) index = 0
+    if (index > pages.length - 1) return res.status(400).end()
+
+    payload.articles = pages[index]
+    payload.index = {
+        now: index + 1,
+        all: pages.length
+    }
+    // ********** 处理文章列表 结束 **********
 
     const abouts = await app.db.select('about', {})
 

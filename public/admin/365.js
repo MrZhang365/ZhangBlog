@@ -296,6 +296,25 @@ async function initComments() {
     comments.forEach(showComment)
 }
 
+async function initConfig() {
+    $('disable-comment').onchange = async e => {
+        const value = e.target.checked
+        e.target.disabled = true
+
+        try{
+            await post('/api/config/disable-comment', { disabled: value })
+            mdui.snackbar('修改成功', { position: 'right-bottom' })
+        } catch(err) {
+            mdui.snackbar('修改失败', { position: 'right-bottom' })
+            e.target.checked = !value
+        } finally {
+            e.target.disabled = false
+        }
+    }
+    const disabledComment = (await get('/api/config/disable-comment')).disabled
+    $('disable-comment').checked = disabledComment
+}
+
 async function loadArticles() {
     const articleList = await get('/api/article/all')
     articleList.forEach(a => {
@@ -346,6 +365,7 @@ checkLogin().then(r => {
     if (r) {
         loadArticles()
         initComments()
+        initConfig()
         // initSearch()    // 难度太大 暂时不写
     }
 })

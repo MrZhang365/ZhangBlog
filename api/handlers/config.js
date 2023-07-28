@@ -48,17 +48,9 @@ router.post('/disable-comment', async (req, res) => {
     if (!req.body) return res.status(400).end()
     if (typeof req.body.disabled !== 'boolean') return res.status(400).end()
 
-    if (!(await app.db.select('config', { name: 'disable-comment' }))[0]) {
-        await app.db.delete('config', { name: 'disable-comment' })
-        await app.db.insert('config', {
-            name: 'disable-comment',
-            data: req.body.disabled
-        })
-    }
-
-    await app.db.update('config', {
-        name: 'disable-comment'
-    }, {
+    await app.db.delete('config', { name: 'disable-comment' })
+    await app.db.insert('config', {
+        name: 'disable-comment',
         data: req.body.disabled
     })
 

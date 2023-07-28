@@ -41,12 +41,16 @@ async function initComment() {
         if (!result.logined) {
             $('send-comment').disabled = true
             $('send-comment').textContent = '请先登录'
-            window.disableSendComments = true
+        }
+
+        result = await get('/api/config/disable-comment')
+        if (result.disabled) {
+            $('send-comment').disabled = true
+            $('send-comment').textContent = '已设置全局禁止发送评论'
         }
     } catch(e) {
         $('send-comment').disabled = true
-        $('send-comment').textContent = '账户异常'
-        window.disableSendComments = true
+        $('send-comment').textContent = '系统异常'
     }
 
     $('send-comment').onclick = async e => {

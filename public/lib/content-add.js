@@ -28,7 +28,12 @@ function articleAdd(article) {
     element.classList.add('mdui-hoverable', 'mdui-p-a-2')
     
     const h1 = document.createElement('h1')
-    h1.textContent = article.title
+
+    const titleLink = document.createElement('a')
+    titleLink.href = `/article/#${article.id}`
+    titleLink.textContent = article.title
+
+    h1.appendChild(titleLink)
     element.appendChild(h1)
 
     const timeP = document.createElement('p')
@@ -50,13 +55,6 @@ function articleAdd(article) {
     const p = document.createElement('p')
     p.innerHTML = md.render(article.content)
     element.appendChild(p)
-
-    const a = document.createElement('a')
-    a.classList.add('mdui-btn', 'mdui-btn-raised', 'mdui-btn-block', 'mdui-ripple', 'mdui-color-theme-accent')
-    a.href = `/article/#${article.id}`
-    a.textContent = '阅读全文'
-
-    element.appendChild(a)
 
     $('articles').appendChild(element)
 }

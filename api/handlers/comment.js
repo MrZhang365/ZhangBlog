@@ -3,6 +3,16 @@ import * as uuid from 'uuid'
 
 const router = Router()
 router.post('/publish', async (req, res) => {
+    if (!(await app.db.select('config', { name: 'disable-comment' }))[0]) {
+        await app.db.delete('config', { name: 'disable-comment' })
+        await app.db.insert('config', {
+            name: 'disable-comment',
+            data: false
+        })
+    }
+
+    if ((await app.db.select('config', { name: 'disable-comment' }))[0].data) return res.status(403).end()
+
     if (!req.account.id) return res.status(401).end()
     if (!req.body) return res.status(400).end()
     

@@ -2,6 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>ZhangBlog控制台</title>
 
@@ -53,7 +54,7 @@
                         <div class="mdui-textfield mdui-textfield-floating-label">
                             <i class="mdui-icon material-icons">&#xe264;</i>
                             <label class="mdui-textfield-label">标题</label>
-                            <input id="article-title" class="mdui-textfield-input" type="text" maxlength="20" required>
+                            <input id="article-title" class="mdui-textfield-input" type="text" required>
                         </div>
                         <div class="mdui-textfield mdui-textfield-floating-label">
                             <i class="mdui-icon material-icons">&#xe261;</i>
@@ -63,6 +64,9 @@
                         <br>
                         <button type="submit" class="mdui-btn mdui-btn-block mdui-btn-raised mdui-ripple mdui-color-theme-accent"><i class="mdui-icon material-icons">&#xe255;</i>发布</button>
                     </form>
+                    <a class="mdui-fab mdui-fab-fixed mdui-color-theme-accent mdui-ripple" href="/img-bed" target="_blank" mdui-tooltip="{ content: '内置图床' }">
+                        <i class="mdui-icon material-icons">&#xe3f4;</i>
+                    </a>
                 </div>
                 <div id="comments" class="mdui-col-sm-8 mdui-col-offset-sm-2 mdui-typo">
                     <h1>评论管理 <small>请遵循公平正义的原则 请勿乱删评论“控评”</small></h1>
