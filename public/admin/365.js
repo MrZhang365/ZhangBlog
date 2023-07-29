@@ -11,8 +11,8 @@ async function publish() {
         return mdui.alert('文章发布失败', ': (', undefined, { confirmText: '确定' })
     }
 
-    mdui.snackbar('文章发表成功，文章ID为 ' + result.id, { position: 'right-bottom', timeout: 3000 })
-    setTimeout(() => location.href = `/article/#${result.id}`, 3000)
+    mdui.snackbar('文章发表成功，ID为 ' + result.id, { position: 'right-bottom', timeout: 3000 })
+    setTimeout(() => location.href = `/article/#${result.id}`, 3500)
 }
 
 $('publish-article').onsubmit = () => {
@@ -30,7 +30,7 @@ async function editArticle(el) {
     try{
         await post('/api/article/edit', { id, title, content })
         mdui.snackbar('文章修改成功', { position: 'right-bottom', timeout: 3000 })
-        setTimeout(() => location.href = `/article/#${id}`, 3000)
+        setTimeout(() => location.href = `/article/#${id}`, 3500)
     } catch(e) {
         mdui.alert('文章修改失败', ': (', undefined, { confirmText: '确定' })
     }
@@ -72,7 +72,6 @@ function pushArticle(article) {
     titleInput.id = `${article.id}-title-edit`
     titleInput.classList.add('mdui-textfield-input')
     titleInput.type = 'text'
-    titleInput.maxLength = 20
     titleInput.value = article.title
     titleDiv.appendChild(titleInput)
 
@@ -119,8 +118,9 @@ function pushArticle(article) {
                 await delArticle(e.target)
                 mdui.snackbar('文章删除成功', { position: 'right-bottom', timeout: 3000 })
                 setTimeout(() => {
-                    location.reload()
-                }, 3000)
+                    $('articles').innerHTML = ''
+                    loadArticles()
+                }, 3500)
             } catch(e) {
                 mdui.alert('文章删除失败', ': (', undefined, { confirmText: '确定' })
             }
@@ -136,10 +136,73 @@ function pushArticle(article) {
     mdui.mutation()
 }
 
+async function handleBan(e) {
+    const element = e.target
+    const id = Number.parseInt(element.getAttribute('data-id'))
+    const mode = element.getAttribute('data-mode')
+
+    if (!await confirmBan(mode === 'ban')) return
+
+    try{
+        await post(`/api/users/${mode}`, {
+            id,
+        })
+        mdui.snackbar('封禁状态修改成功', { position: 'right-bottom' })
+        $('user-list').innerHTML = ''
+        initUsers()
+    } catch(err) {
+        mdui.snackbar('封禁状态修改失败', { position: 'right-bottom' })
+    }
+}
+
+function pushUser(user) {
+    const panel = document.createElement('div')
+    panel.classList.add('mdui-panel-item')
+    
+    const header = document.createElement('div')
+    header.classList.add('mdui-panel-item-header')
+    header.textContent = user.username
+    panel.appendChild(header)
+
+    const div = document.createElement('div')
+    div.id = user.id
+    div.classList.add('mdui-panel-item-body')
+
+    const usernameTitle = document.createElement('h1')
+    usernameTitle.textContent = user.username
+    div.appendChild(usernameTitle)
+
+    const stats = document.createElement('p')
+    stats.innerHTML = md.render(`用户ID：${user.id}\n是否被封禁：${user.banned}\n是否为管理员：${user.admin}\n注册IP：${user.ip}`)
+    div.appendChild(stats)
+
+    const banBtn = document.createElement('button')
+    banBtn.type = 'button'
+    banBtn.setAttribute('data-id', user.id)
+    banBtn.setAttribute('data-mode', user.banned ? 'unban' : 'ban')
+    banBtn.textContent = user.banned ? '解除封禁' : '封禁'
+    banBtn.classList.add('mdui-btn', 'mdui-btn-block', 'mdui-btn-raised', 'mdui-ripple', 'mdui-color-red')
+    banBtn.onclick = handleBan
+    div.appendChild(banBtn)
+    
+    panel.appendChild(div)
+    $('user-list').appendChild(panel)
+    mdui.mutation()
+}
+
 function confirmDelete() {
     return new Promise(res => {
         mdui.confirm('请遵循公平正义的原则 请勿乱删评论“控评”<br>您确定要删除这条评论吗？其子评论也会被删除<br>此操作无法撤销', '严重警告', () => res(true), () => res(false), {
             confirmText: '我确定要删除这条评论',
+            cancelText: '我是傻逼，我点错了'
+        })
+    })
+}
+
+function confirmBan(ban = true) {
+    return new Promise(res => {
+        mdui.confirm(`请遵循公平正义的原则 请勿乱封禁用户以“控评”<br>您确定要${ban ? '封禁' : '解除封禁'}该用户吗？<br>此操作可以撤销`, '严重警告', () => res(true), () => res(false), {
+            confirmText: `我确定要${ban ? '封禁' : '解除封禁'}`,
             cancelText: '我是傻逼，我点错了'
         })
     })
@@ -154,7 +217,12 @@ async function handleDelete(e) {
         await post('/api/comment/delete', {
             id
         })
-        location.reload()
+        mdui.snackbar('评论删除成功', { position: 'right-bottom', timeout: 3000 })
+        setTimeout(() => {
+            $('comments-div').innerHTML = ''
+            initComments()
+
+        })
     } catch(e) {
         mdui.alert(`评论删除失败`, ': (', undefined, {
             confirmText: '确定'
@@ -205,7 +273,7 @@ function showComment(comment) {
     const deleteBtn = document.createElement('button')
     deleteBtn.type = 'button'
     deleteBtn.setAttribute('data-id', comment.id)
-    deleteBtn.classList.add('mdui-btn', 'mdui-btn-raised', 'mdui-ripple', 'mdui-color-red', 'zhangsoft-delete-comment')
+    deleteBtn.classList.add('mdui-btn', 'mdui-btn-block', 'mdui-btn-raised', 'mdui-ripple', 'mdui-color-red', 'zhangsoft-delete-comment')
     deleteBtn.textContent = '删除评论'
     div.appendChild(deleteBtn)
     div.appendChild(document.createElement('br'))
@@ -296,6 +364,11 @@ async function initComments() {
     comments.forEach(showComment)
 }
 
+async function initUsers() {
+    const users = await get('/api/users/list')
+    users.forEach(pushUser)
+}
+
 async function initConfig() {
     $('disable-comment').onchange = async e => {
         const value = e.target.checked
@@ -366,6 +439,7 @@ checkLogin().then(r => {
         loadArticles()
         initComments()
         initConfig()
+        initUsers()
         // initSearch()    // 难度太大 暂时不写
     }
 })
