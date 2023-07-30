@@ -270,15 +270,6 @@ function showComment(comment) {
     articleP.appendChild(articleLink)
     div.appendChild(articleP)
 
-    const deleteBtn = document.createElement('button')
-    deleteBtn.type = 'button'
-    deleteBtn.setAttribute('data-id', comment.id)
-    deleteBtn.classList.add('mdui-btn', 'mdui-btn-block', 'mdui-btn-raised', 'mdui-ripple', 'mdui-color-red', 'zhangsoft-delete-comment')
-    deleteBtn.textContent = '删除评论'
-    div.appendChild(deleteBtn)
-    div.appendChild(document.createElement('br'))
-    div.appendChild(document.createElement('br'))
-
     const content = md.render(comment.content)
     div.innerHTML += content
 
@@ -332,25 +323,33 @@ function showComment(comment) {
             ipP.appendChild(ipU)
             div.appendChild(ipP)
 
+            let content = md.render(c.content)
+            div.innerHTML += content
+
             let delBtn = document.createElement('button')
             delBtn.type = 'button'
             delBtn.setAttribute('data-id', c.id)
-            delBtn.classList.add('mdui-btn', 'mdui-btn-raised', 'mdui-ripple', 'mdui-color-red', 'zhangsoft-delete-comment')
+            delBtn.classList.add('mdui-btn', 'mdui-btn-block', 'mdui-btn-raised', 'mdui-ripple', 'mdui-color-red', 'zhangsoft-delete-comment')
             delBtn.textContent = '删除评论'
             div.appendChild(delBtn)
             div.appendChild(document.createElement('br'))
-            div.appendChild(document.createElement('br'))
-
-            let content = md.render(c.content)
-            div.innerHTML += content
 
             body.appendChild(div)
             body.appendChild(document.createElement('hr'))
         }
         
         div.appendChild(panelParent)
+        div.appendChild(document.createElement('br'))
         mdui.mutation()
     }
+
+    const deleteBtn = document.createElement('button')
+    deleteBtn.type = 'button'
+    deleteBtn.setAttribute('data-id', comment.id)
+    deleteBtn.classList.add('mdui-btn', 'mdui-btn-block', 'mdui-btn-raised', 'mdui-ripple', 'mdui-color-red', 'zhangsoft-delete-comment')
+    deleteBtn.textContent = '删除评论'
+    div.appendChild(deleteBtn)
+    div.appendChild(document.createElement('br'))
 
     $('comments-div').appendChild(document.createElement('hr'))
     for (let e of document.getElementsByClassName('zhangsoft-delete-comment')) {

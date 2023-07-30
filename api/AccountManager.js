@@ -23,10 +23,14 @@ export default class {
             const account = await this.getUserById(num)
             if (!account) {
                 res.clearCookie('account')
-                return res.redirect('/login/error-account-404.html')
+                return res.status(401).json({
+                    error: 'account-not-found'
+                })
             }
             if (account.banned) {
-                return res.redirect('/login/error-account-banned.html')
+                return res.status(403).json({
+                    error: 'banned',
+                })
             }
             req.account = account
             next()
