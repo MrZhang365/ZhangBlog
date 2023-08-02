@@ -2,7 +2,8 @@ async function getArticle(id) {
     return await get(`/api/article/get/?id=${id}`)
 }
 
-function showArticle(article) {
+async function showArticle(article) {
+    if (article.disableComment) window.disableComment = true
     const title = document.createElement('h1')
     title.innerHTML = md.render(article.title)
     $('article').appendChild(title)
@@ -24,15 +25,10 @@ function showArticle(article) {
     }
 
     $('article').innerHTML += md.render(article.content)
-}
 
-function getInput(text, title) {
-    return new Promise(res => {
-        mdui.prompt(text, title, res, () => res(null), {
-            confirmText: '确定',
-            cancelText: '取消',
-        })
-    })
+    if (article.password === true) {
+        $('password').parentElement.classList.remove('mdui-hidden')
+    }
 }
 
 async function initComment() {
@@ -46,7 +42,10 @@ async function initComment() {
         result = await get('/api/config/disable-comment')
         if (result.disabled) {
             $('send-comment').disabled = true
-            $('send-comment').textContent = '已设置全局禁止发送评论'
+            $('send-comment').textContent = '全局禁止发送评论'
+        } else if (window.disableComment) {
+            $('send-comment').disabled = true
+            $('send-comment').textContent = '本篇文章禁止发送评论'
         }
     } catch(e) {
         $('send-comment').disabled = true
@@ -65,15 +64,20 @@ async function initComment() {
         }
         try{
             btn.textContent = '正在发送...'
+            e.target.value = ''
+            mdui.updateTextFields()
             const data = {
                 id: location.hash.slice(1),
                 content,
             }
             if (btn.getAttribute('data-reply')) data.parent = btn.getAttribute('data-reply')
-            await post('/api/comment/publish', data)
-            location.reload()
+            let target = '/api/comment/publish'
+            if (window.globalPassword) target += `?password=${encodeURI(window.globalPassword)}`
+            await post(target, data)
+            $('comments').innerHTML = ''
+            loadComments()
         } catch(e) {
-            mdui.alert('这可能是由于网络或账户异常导致的，也可能是因为服务器崩溃', '评论发送失败', undefined, { confirmText: '确定' })
+            mdui.alert('这可能是由于网络或账户异常导致的，也可能是因为服务器崩溃，还有可能是您尚未解密本文章（如果本文章有密码）', '评论发送失败', undefined, { confirmText: '确定' })
         } finally {
             btn.disabled = false
             btn.textContent = '发送'
@@ -164,14 +168,16 @@ function showComment(comment) {
 }
 
 async function loadComments() {
-    const comments = await get(`/api/comment/get/?id=${location.hash.slice(1)}`)
+    var url = `/api/comment/get/?id=${location.hash.slice(1)}`
+    if (window.globalPassword) url += `&password=${encodeURI(window.globalPassword)}`
+    const comments = await get(url)
     comments.forEach(showComment)
 }
 
 async function initArticle() {
-    const id = location.hash.slice(1)
-    if (!id) return mdui.alert('你干嘛直接访问这个页面？', '你干嘛~ 哈哈哎哟~', undefined, { confirmText: '我干嘛~' })
-    
+    var id = location.hash.slice(1)
+    if (window.globalPassword) id += `&password=${encodeURI(window.globalPassword)}`
+
     var data
     try{
         data = await getArticle(id)
@@ -184,6 +190,24 @@ async function initArticle() {
 async function initPage() {
     const id = location.hash.slice(1)
     if (!id) return mdui.alert('你干嘛直接访问这个页面？', '你干嘛~ 哈哈哎哟~', undefined, { confirmText: '我干嘛~' })
+
+    $('password').onkeydown = e => {
+        if (e.keyCode !== 13) return
+        e.preventDefault()
+
+        const password = e.target.value
+        window.globalPassword = e.target.value    // 全局设置密码，方便其他的函数获取密码
+        e.target.value = ''
+        if (!password) return
+        mdui.updateTextFields()
+        e.target.parentElement.classList.add('mdui-hidden')
+
+        mdui.snackbar('正在尝试获取文章，请稍后', { position: 'right-bottom' })
+        $('article').innerHTML = ''
+        $('comments').innerHTML = ''
+        initArticle()
+        loadComments()
+    }
 
     initArticle()
     initComment()

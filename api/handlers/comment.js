@@ -1,5 +1,6 @@
 import Router from 'express'
 import * as uuid from 'uuid'
+import { default as sha } from 'sha256'
 
 const router = Router()
 router.post('/publish', async (req, res) => {
@@ -19,6 +20,11 @@ router.post('/publish', async (req, res) => {
     const article = req.body.id    // 文章ID
     const parent = (typeof req.body.parent === 'string' && !!req.body.parent) ? req.body.parent : undefined    // 父评论ID（仅适用于回复）
     const content = (typeof req.body.content === 'string') ? req.body.content.trim() : undefined    // 内容
+
+    const a = (await app.db.select('articles', { id: article }))[0]
+    if (!a) return res.status(404).end()
+    if (a.disableComment) return res.status(403).end()
+    if (a.password && !req.account.admin && sha(decodeURI(req.query.password)).toUpperCase() !== a.password.toUpperCase()) return res.status(403).end()
 
     if (!article || typeof article !== 'string') return res.status(400).end()
     if (!content) return res.status(400).end()
@@ -42,7 +48,7 @@ router.post('/publish', async (req, res) => {
     }
 
     await app.db.insert('comments', comment)
-    return res.status(200).json({
+    return res.json({
         id, 
     })
 })
@@ -76,6 +82,7 @@ router.get('/get', async (req, res) => {
 
     const article = (await app.db.select('articles', { id }))[0]
     if (!article) return res.status(400).end()
+    if (article.password && !req.account.admin && sha(decodeURI(req.query.password)).toUpperCase() !== article.password.toUpperCase()) return res.json([])
 
     const comments = (await app.db.select('comments', { article: id })).sort((a, b) => b.time - a.time)
     var payload = []

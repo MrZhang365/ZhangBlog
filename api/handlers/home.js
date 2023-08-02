@@ -8,6 +8,8 @@ router.get('/', async (req, res) => {
     // ********** 处理文章列表 开始 **********
     const articles = (await app.db.select('articles', {})).map(a => {
         if (a.content.length > 60) a.content = a.content.slice(0, 60) + '...'    // 如果文章内容超过60个字，则截取前60字并加上省略号
+        if (a.password && !req.account.admin) a.content = `请输入密码以查看本文章`
+        delete a.password    // 管你有没有 格杀勿论
         return a
     }).sort((a, b) => b.time - a.time)    // 获取全部文章，然后处理一下
 

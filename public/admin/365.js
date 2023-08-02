@@ -41,6 +41,45 @@ async function delArticle(el) {
     await post('/api/article/delete', { id })
 }
 
+async function handleDisable(e) {
+    const id = e.target.getAttribute('data-id')
+    const value = e.target.checked
+    e.target.disabled = true
+
+    try{
+        await post('/api/article/disable-comment', { id, disabled: value })
+        mdui.snackbar('修改成功', { position: 'right-bottom' })
+    } catch(err) {
+        mdui.snackbar('修改失败', { position: 'right-bottom' })
+        e.target.checked = !value
+    } finally {
+        e.target.disabled = false
+    }
+
+}
+
+async function handlePassword(e) {
+    if (e.keyCode !== 13) return
+    e.preventDefault()
+
+    const id = e.target.getAttribute('data-id')
+    const password = e.target.value
+    e.target.value = ''
+    mdui.updateTextFields()
+    e.target.disabled = true
+    $(`helper-text-${id}`).textContent = `正在修改密码，请稍后`
+
+    try{
+        await post('/api/article/password', { id, password })
+        mdui.snackbar('密码修改成功', { position: 'right-bottom' })
+    } catch(err) {
+        mdui.snackbar('密码修改失败', { position: 'right-bottom' })
+    } finally {
+        $(`helper-text-${id}`).textContent = `按回车确认，不填则删除密码`
+        e.target.disabled = false
+    }
+}
+
 function pushArticle(article) {
     const panel = document.createElement('div')
     panel.classList.add('mdui-panel-item')
@@ -94,6 +133,55 @@ function pushArticle(article) {
     contentText.classList.add('mdui-textfield-input')
     contentText.value = article.content
     contentDiv.appendChild(contentText)
+
+    const passwordDiv = document.createElement('div')
+    passwordDiv.classList.add('mdui-textfield', 'mdui-textfield-floating-label')
+    div.appendChild(passwordDiv)
+
+    const passwordIcon = document.createElement('i')
+    passwordIcon.classList.add('mdui-icon', 'material-icons')
+    passwordIcon.innerHTML = '&#xe897;'
+    passwordDiv.appendChild(passwordIcon)
+
+    const passwordLabel = document.createElement('label')
+    passwordLabel.classList.add('mdui-textfield-label')
+    passwordLabel.textContent = '设置密码'
+    passwordDiv.appendChild(passwordLabel)
+
+    const passwordInput = document.createElement('input')
+    passwordInput.type = 'password'
+    passwordInput.setAttribute('data-id', article.id)
+    passwordInput.classList.add('mdui-textfield-input')
+    passwordInput.value = ''
+    passwordInput.onkeydown = handlePassword
+    passwordDiv.appendChild(passwordInput)
+
+    const helperText = document.createElement('div')
+    helperText.classList.add('mdui-textfield-helper')
+    helperText.id = `helper-text-${article.id}`
+    helperText.textContent = '按回车确认，不填则删除密码'
+    passwordDiv.appendChild(helperText)
+
+    div.appendChild(document.createElement('br'))
+
+    const disableCommentP = document.createElement('p')
+    disableCommentP.textContent = '禁止发送评论'
+    div.appendChild(disableCommentP)
+
+    const disableLabel = document.createElement('label')
+    disableLabel.classList.add('mdui-switch', 'mdui-float-right')
+    disableCommentP.appendChild(disableLabel)
+
+    const checkbox = document.createElement('input')
+    checkbox.type = 'checkbox'
+    checkbox.checked = !!article.disableComment
+    checkbox.setAttribute('data-id', article.id)
+    checkbox.onclick = handleDisable
+    disableLabel.appendChild(checkbox)
+
+    const icon = document.createElement('i')
+    icon.classList.add('mdui-switch-icon')
+    disableLabel.appendChild(icon)
 
     const submitBtn = document.createElement('button')
     submitBtn.classList.add('mdui-btn', 'mdui-btn-block', 'mdui-btn-raised', 'mdui-ripple', 'mdui-color-theme-accent')
