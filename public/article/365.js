@@ -92,7 +92,15 @@ function showComment(comment) {
     div.classList.add('mdui-p-a-2')
 
     const titleH4 = document.createElement('h4')
-    titleH4.textContent = comment.nick
+
+    const head = document.createElement('img')
+    head.src = `https://avatars.githubusercontent.com/u/${comment.uid}`
+    head.classList.add('mdui-img-circle')
+    head.style.height = '30px'
+    head.style.width = '30px'
+    titleH4.appendChild(head)
+
+    titleH4.innerHTML += ` ${comment.nick}`    // 因为昵称受到GitHub用户名规则的约束，所以不可能XSS
     div.appendChild(titleH4)
 
     const timeP = document.createElement('p')
@@ -142,7 +150,15 @@ function showComment(comment) {
             let div = document.createElement('div')
 
             let titleH4 = document.createElement('h4')
-            titleH4.textContent = c.nick
+
+            let head = document.createElement('img')
+            head.src = `https://avatars.githubusercontent.com/u/${c.uid}`
+            head.classList.add('mdui-img-circle')
+            head.style.height = '30px'
+            head.style.width = '30px'
+            titleH4.appendChild(head)
+
+            titleH4.innerHTML += ` ${c.nick}`    // 因为昵称受到GitHub用户名规则的约束，所以不可能XSS
             div.appendChild(titleH4)
 
             let timeP = document.createElement('p')

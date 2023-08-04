@@ -56,6 +56,7 @@ router.post('/publish', async (req, res) => {
 async function makeComment(comment, admin = false) {
     var c = {
         id: comment.id,
+        uid: comment.uid, 
         article: comment.article,
         nick: comment.nick,
         content: comment.content,
