@@ -64,7 +64,7 @@ async function initComment() {
         }
         try{
             btn.textContent = '正在发送...'
-            e.target.value = ''
+            $('comment-input').value = ''
             mdui.updateTextFields()
             const data = {
                 id: location.hash.slice(1),
@@ -74,6 +74,8 @@ async function initComment() {
             let target = '/api/comment/publish'
             if (window.globalPassword) target += `?password=${encodeURI(window.globalPassword)}`
             await post(target, data)
+            e.target.value = ''
+            mdui.updateTextFields()
             $('comments').innerHTML = ''
             loadComments()
         } catch(e) {

@@ -36,8 +36,11 @@
             </a>
             <a class="mdui-typo-title" id="title" href="/">ZhangBlog - 小张博客</a>
             <div class="mdui-toolbar-spacer"></div>
-            <a href="/login/" class="mdui-btn mdui-ripple mdui-btn-icon" id="account">
-                <i class="mdui-icon material-icons" mdui-tooltip="{content: '登录或重新登录', position: 'left'}">&#xe853;</i>
+            <a class="mdui-btn mdui-ripple mdui-btn-icon" id="notice-btn" mdui-dialog="{target: '#notice'}" mdui-tooltip="{content: '我的通知', position: 'left'}">
+                <i id="notice-icon" class="mdui-icon material-icons">&#xe7f4;</i>
+            </a>
+            <a href="/login/" class="mdui-btn mdui-ripple mdui-btn-icon" id="account" mdui-tooltip="{content: '登录或重新登录', position: 'left'}">
+                <i class="mdui-icon material-icons">&#xe853;</i>
             </a>
         </header>
 
@@ -70,6 +73,28 @@
                         页
                     </p>
                 </div>
+            </div>
+        </div>
+
+        <div id="notice" class="mdui-dialog mdui-typo">
+            <div class="mdui-p-a-2">
+                <h1>我的通知</h1>
+                <hr>
+                <div class="mdui-table-fluid">
+                    <table class="mdui-table mdui-table-hoverable">
+                        <thead>
+                            <tr>
+                                <th>昵称</th>
+                                <th>信息</th>
+                                <th>时间</th>
+                            </tr>
+                        </thead>
+                        <tbody id="notice-list">
+                            <!--交给脚本添加-->
+                        </tbody>
+                    </table>
+                </div>
+                <button id="notice-clear" class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple">一键清空</button>
             </div>
         </div>
 

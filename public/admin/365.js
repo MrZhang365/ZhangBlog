@@ -80,6 +80,24 @@ async function handlePassword(e) {
     }
 }
 
+async function handleNotice(e) {
+    const uid = Number.parseInt(e.target.getAttribute('data-id'))
+    const content = await new Promise(res => {
+        mdui.prompt('请输入通知信息：', '向用户发送通知', text => res(!!text.trim() ? res(text.trim()) : res(null)), () => res(null), {
+            confirmText: '发送',
+            cancelText: '取消',
+        })
+    })
+
+    if (!content) return
+    try{
+        await post('/api/notice/send', { uid, content })
+        mdui.snackbar('通知发送成功，等待该用户访问首页吧', { position: 'right-bottom' })
+    } catch(e) {
+        mdui.snackbar('通知发送失败', { position: 'right-bottom' })
+    }
+}
+
 function pushArticle(article) {
     const panel = document.createElement('div')
     panel.classList.add('mdui-panel-item')
@@ -272,6 +290,15 @@ function pushUser(user) {
     banBtn.classList.add('mdui-btn', 'mdui-btn-block', 'mdui-btn-raised', 'mdui-ripple', 'mdui-color-red')
     banBtn.onclick = handleBan
     div.appendChild(banBtn)
+    div.appendChild(document.createElement('br'))
+
+    const noticeBtn = document.createElement('button')
+    noticeBtn.type = 'button'
+    noticeBtn.setAttribute('data-id', user.id)
+    noticeBtn.textContent = '发送通知'
+    noticeBtn.classList.add('mdui-btn', 'mdui-btn-block', 'mdui-btn-raised', 'mdui-ripple', 'mdui-color-theme-accent')
+    noticeBtn.onclick = handleNotice
+    div.appendChild(noticeBtn)
     
     panel.appendChild(div)
     $('user-list').appendChild(panel)
