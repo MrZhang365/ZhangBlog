@@ -17,7 +17,9 @@ export function aesToStr(str, key) {
 
 router.get('/login', (req, res) => {
     res.clearCookie('account')
-    res.redirect(global.app.accounts.authUrl)
+    res.status(302)
+    res.setHeader('Location', global.app.accounts.authUrl)
+    res.end()
 })
 
 router.get('/github-callback', async (req, res) => {
