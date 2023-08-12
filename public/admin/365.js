@@ -502,6 +502,178 @@ async function initConfig() {
     $('disable-comment').checked = disabledComment
 }
 
+async function updateFriend(e) {
+    const title = $('friend-title').value.trim()
+    const link = $('friend-link').value.trim()
+
+    if (!title || !link) return
+    try{
+        e.target.disabled = true
+        e.target.textContent = '正在修改，请稍等...'
+        await post('/api/config/friend', { title, link, })
+        mdui.snackbar('修改成功', { position: 'right-bottom' })
+
+        $('friend-title').disabled = false
+        $('friend-title').value = ''
+        $('friend-link').value = ''
+        document.querySelectorAll('[id^=friend-]').forEach(e => mdui.updateTextFields(e.parentElement))
+        window.editFriendWindow.close()
+    } catch(err) {
+        mdui.snackbar('修改失败', { position: 'right-bottom' })
+    } finally {
+        e.target.disabled = false
+        e.target.textContent = '确认修改'
+    }
+
+    try{
+        const got = await get('/api/home')
+        $('friend-list').innerHTML = ''
+        initFriends(got.author.friends)
+    } catch (err) {
+        mdui.snackbar('无法重新初始化友链列表')
+    }
+}
+
+async function deleteFriend(e) {
+    const title = $('friend-title').value.trim()
+    if (!title) return
+    
+    try{
+        e.target.disabled = true
+        e.target.textContent = '正在删除，请稍等...'
+        await post('/api/config/friend', { title, link: 'DELETE', })
+        mdui.snackbar('删除成功', { position: 'right-bottom' })
+
+        $('friend-title').disabled = false
+        $('friend-title').value = ''
+        $('friend-link').value = ''
+        document.querySelectorAll('[id^=friend-]').forEach(e => mdui.updateTextFields(e.parentElement))
+        window.editFriendWindow.close()
+    } catch(err) {
+        mdui.snackbar('删除失败', { position: 'right-bottom' })
+    } finally {
+        e.target.disabled = false
+        e.target.textContent = '删除友链'
+    }
+
+    try{
+        const got = await get('/api/home')
+        $('friend-list').innerHTML = ''
+        initFriends(got.author.friends)
+    } catch (err) {
+        mdui.snackbar('无法重新初始化友链列表')
+    }
+}
+
+async function handleUpdateAbout(e) {
+    if (e.keyCode !== 13) return
+    e.preventDefault()
+    const key = e.target.getAttribute('data-key')
+    const value = e.target.value.trim()
+    const type = e.target.id.startsWith('author-') ? 'author' : 'site'
+
+    if (!value) return mdui.snackbar('请不要留空', { position: 'right-bottom' })
+    e.target.disabled = true
+    mdui.updateTextFields()
+
+    try {
+        await post(`/api/config/basic-about-${type}`, { key, value })
+        mdui.snackbar('修改成功', { position: 'right-bottom'})
+    } catch (err) {
+        mdui.snackbar('修改失败', { position: 'right-bottom' })
+    } finally {
+        e.target.disabled = false
+        mdui.updateTextFields()
+    }
+}
+
+async function initAbout(aboutAuthor, aboutSite) {
+    $('author-nick').value = aboutAuthor.nick
+    $('author-about').value = aboutAuthor.about
+    $('author-head').value = aboutAuthor.head
+
+    $('site-title').value = aboutSite.title
+    $('site-subtitle').value = aboutSite.subtitle
+
+    for (let e of document.getElementsByClassName('about-input')) e.onkeydown = handleUpdateAbout
+    document.querySelectorAll('[id^=author-]').forEach(e => mdui.updateTextFields(e.parentElement))
+    document.querySelectorAll('[id^=site-]').forEach(e => mdui.updateTextFields(e.parentElement))
+}
+
+function handleEditFriend(e) {
+    if (e.target.nodeName === 'A') return
+    const title = e.target.getAttribute('data-title')
+    const link = e.target.getAttribute('data-link')
+
+    $('friend-title').value = title
+    $('friend-title').disabled = true
+    $('friend-link').value = link
+    document.querySelectorAll('[id^=friend-]').forEach(e => mdui.updateTextFields(e.parentElement))
+
+    window.editFriendWindow.open()
+}
+
+function pushFriend(title, link) {
+    const li = document.createElement('li')
+    li.classList.add('mdui-list-item', 'mdui-ripple')
+    li.setAttribute('data-title', title)
+    li.setAttribute('data-link', link)
+    li.onclick = handleEditFriend
+
+    const icon = document.createElement('i')
+    icon.classList.add('mdui-list-item-icon', 'mdui-icon', 'material-icons')
+    icon.innerHTML = '&#xe157;'
+    icon.setAttribute('data-title', title)
+    icon.setAttribute('data-link', link)
+    li.appendChild(icon)
+
+    const contentDiv = document.createElement('div')
+    contentDiv.classList.add('mdui-list-item-content')
+    contentDiv.setAttribute('data-title', title)
+    contentDiv.setAttribute('data-link', link)
+    li.appendChild(contentDiv)
+
+    const titleDiv = document.createElement('div')
+    titleDiv.classList.add('mdui-list-item-title', 'mdui-list-item-one-line')
+    titleDiv.textContent = title
+    titleDiv.setAttribute('data-title', title)
+    titleDiv.setAttribute('data-link', link)
+    contentDiv.appendChild(titleDiv)
+
+    const a = document.createElement('a')
+    a.classList.add('mdui-list-item-text', 'mdui-list-item-one-line')
+    a.target = '_black'
+    a.href = link
+    a.textContent = link
+
+    contentDiv.appendChild(a)
+
+    $('friend-list').appendChild(li)
+}
+
+function handleAddFriend() {
+    document.querySelectorAll('[id^=friend-]').forEach(e => e.parentElement.classList.remove('mdui-textfield-invalid'))
+    window.editFriendWindow.open()
+}
+
+async function initFriends(friends) {
+    window.editFriendWindow = new mdui.Dialog('#edit-friend')
+    $('update-friend').onclick = updateFriend
+    $('delete-friend').onclick = deleteFriend
+    $('add-friend').onclick = handleAddFriend
+    Object.keys(friends).forEach(f => {
+        const title = f
+        const link = friends[f]
+        pushFriend(title, link)
+    })
+}
+
+async function initHomeConfig() {
+    const { author: aboutAuthor, site: aboutSite, } = await get('/api/home')
+    initAbout(aboutAuthor, aboutSite)
+    initFriends(aboutAuthor.friends)
+}
+
 async function loadArticles() {
     const articleList = await get('/api/article/all')
     articleList.forEach(a => {
@@ -550,6 +722,7 @@ function initSearch() {
 
 checkLogin().then(r => {
     if (r) {
+        initHomeConfig()
         loadArticles()
         initComments()
         initConfig()

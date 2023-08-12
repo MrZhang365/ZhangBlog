@@ -36,6 +36,7 @@
         </header>
         <div class="mdui-container-fluid">
             <div class="mdui-tab mdui-tab-full-width" mdui-tab>
+                <a href="#about-edit" class="mdui-ripple">博客信息</a>
                 <a href="#articles-edit" class="mdui-ripple">修改文章</a>
                 <a href="#publish" class="mdui-ripple">发表文章</a>
                 <a href="#comments" class="mdui-ripple">评论管理</a>
@@ -43,6 +44,51 @@
                 <a href="#users" class="mdui-ripple">用户管理</a>
             </div>
             <div class="mdui-row">
+                <div id="about-edit" class="mdui-col-sm-8 mdui-col-offset-sm-2 mdui-typo">
+                    <h1>博客信息</h1>
+                    <h2>个人信息</h2>
+                    <div class="mdui-textfield mdui-textfield-floating-label">
+                        <i class="mdui-icon material-icons">&#xe853;</i>
+                        <label class="mdui-textfield-label">昵称</label>
+                        <input data-key="nick" id="author-nick" class="about-input mdui-textfield-input" type="text" required>
+                        <div class="mdui-textfield-error">不允许无名氏</div>
+                        <div class="mdui-textfield-helper">按下回车以保存</div>
+                    </div>
+                    <div class="mdui-textfield mdui-textfield-floating-label">
+                        <i class="mdui-icon material-icons">&#xe261;</i>
+                        <label class="mdui-textfield-label">简单介绍</label>
+                        <input data-key="about" id="author-about" class="about-input mdui-textfield-input" type="text" required>
+                        <div class="mdui-textfield-error">请介绍一下自己</div>
+                        <div class="mdui-textfield-helper">按下回车以保存</div>
+                    </div>
+                    <div class="mdui-textfield mdui-textfield-floating-label">
+                        <i class="mdui-icon material-icons">&#xe420;</i>
+                        <label class="mdui-textfield-label">头像地址</label>
+                        <input data-key="head" id="author-head" class="about-input mdui-textfield-input" type="url" required>
+                        <div class="mdui-textfield-error">请输入你的头像地址</div>
+                        <div class="mdui-textfield-helper">请输入头像地址，按下回车以保存</div>
+                    </div>
+                    <h2>网站信息</h2>
+                    <div class="mdui-textfield mdui-textfield-floating-label">
+                        <i class="mdui-icon material-icons">&#xe264;</i>
+                        <label class="mdui-textfield-label">标题</label>
+                        <input data-key="title" id="site-title" class="about-input mdui-textfield-input" type="text" required>
+                        <div class="mdui-textfield-error">网站必须有标题</div>
+                        <div class="mdui-textfield-helper">按下回车以保存</div>
+                    </div>
+                    <div class="mdui-textfield mdui-textfield-floating-label">
+                        <i class="mdui-icon material-icons">&#xe048;</i>
+                        <label class="mdui-textfield-label">副标题</label>
+                        <input data-key="subtitle" id="site-subtitle" class="about-input mdui-textfield-input" type="text" required>
+                        <div class="mdui-textfield-error">网站必须有副标题</div>
+                        <div class="mdui-textfield-helper">按下回车以保存</div>
+                    </div>
+                    <h2>神秘的树洞</h2>
+                    <ul id="friend-list" class="mdui-list">
+                        <!--交给脚本-->
+                    </ul>
+                    <button id="add-friend" type="button" class="mdui-btn mdui-btn-block mdui-btn-raised mdui-ripple mdui-color-theme-accent">添加友链</button>
+                </div>
                 <div id="articles-edit" class="mdui-col-sm-8 mdui-col-offset-sm-2 mdui-typo">
                     <h1>编辑文章</h1>
                     <div class="mdui-panel" mdui-panel id="articles">
@@ -56,11 +102,13 @@
                             <i class="mdui-icon material-icons">&#xe264;</i>
                             <label class="mdui-textfield-label">标题</label>
                             <input id="article-title" class="mdui-textfield-input" type="text" required>
+                            <div class="mdui-textfield-error">这篇文章还没有标题哦</div>
                         </div>
                         <div class="mdui-textfield mdui-textfield-floating-label">
                             <i class="mdui-icon material-icons">&#xe261;</i>
                             <label class="mdui-textfield-label">内容</label>
                             <textarea id="article-content" class="mdui-textfield-input" type="text" required></textarea>
+                            <div class="mdui-textfield-error">一篇文章怎么能没有内容</div>
                         </div>
                         <br>
                         <button type="submit" class="mdui-btn mdui-btn-block mdui-btn-raised mdui-ripple mdui-color-theme-accent"><i class="mdui-icon material-icons">&#xe255;</i>发布</button>
@@ -115,6 +163,29 @@
                         <!--动态添加-->
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div id="edit-friend" class="mdui-dialog mdui-typo">
+            <div class="mdui-p-a-2">
+                <h1>编辑友链</h1>
+                <hr>
+                <div class="mdui-textfield mdui-textfield-floating-label">
+                    <i class="mdui-icon material-icons">&#xe264;</i>
+                    <label class="mdui-textfield-label">标题</label>
+                    <input id="friend-title" class="mdui-textfield-input" type="text" required>
+                    <div class="mdui-textfield-error">请不要留空</div>
+                </div>
+                <div class="mdui-textfield mdui-textfield-floating-label">
+                    <i class="mdui-icon material-icons">&#xe157;</i>
+                    <label class="mdui-textfield-label">地址</label>
+                    <input id="friend-link" class="mdui-textfield-input" type="url" required>
+                    <div class="mdui-textfield-error">请不要留空或输入无效的地址</div>
+                </div>
+                <br>
+                <button id="update-friend" type="button" class="mdui-btn mdui-btn-block mdui-btn-raised mdui-ripple mdui-color-theme-accent">确认修改</button>
+                <br>
+                <button id="delete-friend" type="button" class="mdui-btn mdui-btn-block mdui-btn-raised mdui-ripple mdui-color-red">删除友链</button>
             </div>
         </div>
 

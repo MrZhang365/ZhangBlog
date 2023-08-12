@@ -27,6 +27,51 @@ router.post('/init-about', async (req, res) => {
     res.json({})
 })
 
+router.post('/basic-about-author', async (req, res) => {
+    if (!req.account.admin) return res.status(401).end()
+    if (!req.body) return res.status(400).end()
+    if (!req.body.key || typeof req.body.key !== 'string') return res.status(400).end()
+    if (!req.body.value || typeof req.body.value !== 'string') return res.status(400).end()
+
+    if (!['nick', 'about', 'head'].includes(req.body.key)) return res.status(400).end()
+
+    const newData = {}
+    newData[req.body.key] = req.body.value
+
+    await app.db.update('about', { name: 'author' }, newData)
+    res.json({})
+})
+
+router.post('/basic-about-site', async (req, res) => {
+    if (!req.account.admin) return res.status(401).end()
+    if (!req.body) return res.status(400).end()
+    if (!req.body.key || typeof req.body.key !== 'string') return res.status(400).end()
+    if (!req.body.value || typeof req.body.value !== 'string') return res.status(400).end()
+
+    if (!['title', 'subtitle'].includes(req.body.key)) return res.status(400).end()
+
+    const newData = {}
+    newData[req.body.key] = req.body.value
+
+    await app.db.update('about', { name: 'site' }, newData)
+    res.json({})
+})
+
+router.post('/friend', async (req, res) => {
+    if (!req.account.admin) return res.status(401).end()
+    if (!req.body) return res.status(400).end()
+    
+    const title = req.body.title
+    const link = req.body.link
+    if (typeof title !== 'string' || typeof link !== 'string' || !title || !link) return res.status(400).end()
+
+    var nowAbout = (await app.db.select('about', { name: 'author' }))[0]
+    if (link !== 'DELETE') nowAbout.friends[title] = link
+    else delete nowAbout.friends[title]
+    await app.db.update('about', { name: 'author' }, { friends: nowAbout.friends })
+    res.json({})
+})
+
 router.get('/disable-comment', async (req, res) => {
     if (!(await app.db.select('config', { name: 'disable-comment' }))[0]) {
         await app.db.delete('config', { name: 'disable-comment' })

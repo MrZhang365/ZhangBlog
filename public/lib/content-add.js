@@ -10,18 +10,6 @@ function friendAdd(name, link) {
     $('friends').appendChild(document.createElement('br'))
 }
 
-function socializeClear() {
-    $('socialize').innerHTML = ''
-}
-
-function socializeAdd(name, link) {
-    const element = document.createElement('a')
-    element.textContent = name
-    element.href = link
-    $('socialize').appendChild(element)
-    $('socialize').appendChild(document.createElement('br'))
-}
-
 function articleAdd(article) {
     $('articles').appendChild(document.createElement('br'))
     const element = document.createElement('div')
