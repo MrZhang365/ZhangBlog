@@ -4,6 +4,9 @@ import { default as sha } from 'sha256'
 
 const router = Router()
 router.post('/publish', async (req, res) => {
+    if (Date.now() - req.account.lastComment <= 60000) {
+        return res.status(429).json({ error: 'fast' })
+    }
     if (!(await app.db.select('config', { name: 'disable-comment' }))[0]) {
         await app.db.delete('config', { name: 'disable-comment' })
         await app.db.insert('config', {
@@ -54,6 +57,7 @@ router.post('/publish', async (req, res) => {
     }
 
     await app.db.insert('comments', comment)
+    await app.db.update('users', { id: req.account.id }, { lastComment: Date.now() })
     if (!req.account.admin) await app.db.insert('notices', {
         uid: (await app.db.select('users', { admin: true }))[0].id,
         nick: req.account.username,

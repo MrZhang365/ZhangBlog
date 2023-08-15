@@ -73,7 +73,8 @@ async function initComment() {
             if (btn.getAttribute('data-reply')) data.parent = btn.getAttribute('data-reply')
             let target = '/api/comment/publish'
             if (window.globalPassword) target += `?password=${encodeURI(window.globalPassword)}`
-            await post(target, data)
+            const result = await post(target, data)
+            if (result.error === 'fast') return mdui.alert(`一分钟内只能发送一条评论`, `我们跟不上你的速度`, undefined, { confirmText: '确定' })
             e.target.value = ''
             mdui.updateTextFields()
             $('comments').innerHTML = ''
