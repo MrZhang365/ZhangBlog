@@ -8,6 +8,23 @@ async function showArticle(article) {
     title.innerHTML = md.render(article.title)
     $('article').appendChild(title)
 
+    const tags = []
+    for (let tag of article.tags) {
+        const paperee = document.createElement('div')    // 创建一个MDUI的纸片组件，由于和纸片君ee（paperee）重名，所以就干脆用这个名字 XD
+        paperee.classList.add('mdui-chip')
+
+        const ee = document.createElement('span')    // 直接用ee XD
+        ee.classList.add('mdui-chip-title')
+        ee.textContent = tag
+        paperee.appendChild(ee)
+
+        tags.push(paperee)
+    }
+
+    tags.forEach(paperee => {    // 纸片君ee * 2
+        $('article').appendChild(paperee)
+    })
+
     const timeP = document.createElement('p')
     timeP.textContent = '发表于 '
     const timeU = document.createElement('u')

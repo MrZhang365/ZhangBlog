@@ -32,16 +32,32 @@ router.post('/publish', async (req, res) => {
     const title = req.body.title
     const content = req.body.content
     if (typeof title !== 'string' || !title || !content || typeof content !== 'string') return res.status(400).end()
+    const tags = Array.isArray(req.tags) ? req.tags : ['默认']
 
     const id = uuid.v4()
     app.db.insert('articles', {
-        id, title, content,
+        id, title, content, tags,
         disableComment: false,
         time: Date.now(),
     })
     res.status(200).json({
         id
     })
+})
+
+router.post('/set-tags', async (req, res) => {
+    if (!Array.isArray(req.body.tags) || typeof req.body.id !== 'string' || !req.body.id) return res.status(400).end()
+    if (req.body.tags.length === 0) return res.status(400).end()
+
+    for (let tag of req.body.tags) {
+        if (typeof tag !== 'string' || !tag) return res.status(400).end()
+    }
+    
+    const article = (await app.db.select('articles', { id: req.body.id }))[0]
+    if (!article) return res.status(404).end()
+
+    await app.db.update('articles', { id: req.body.id }, { tags: req.body.tags })
+    res.json({})
 })
 
 router.post('/disable-comment', async (req, res) => {

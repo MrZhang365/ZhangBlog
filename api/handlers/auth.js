@@ -34,11 +34,13 @@ router.get('/github-callback', async (req, res) => {
 
     if (userInfo.type !== 'User') return res.redirect('/login/error-not-user.html')
     
-    if (!await app.accounts.getUserById(userInfo.id)) {
+    var user = await app.accounts.getUserById(userInfo.id)
+    if (!user) {
         await app.accounts.addUser(userInfo)
+        user = userInfo
+    } else {
+        await app.db.update('users', { id: user.id }, { username: userInfo.login })
     }
-
-    const user = await app.accounts.getUserById(userInfo.id)
 
     if (user.banned) return res.redirect('/login/error-account-banned.html')
 

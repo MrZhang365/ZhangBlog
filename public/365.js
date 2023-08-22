@@ -1,5 +1,6 @@
 async function initPage() {
     initNotice()    // 异步任务 初始化通知列表
+    $('reset-tag').onclick = resetTag
     const home = await get('/api/home')
 
     home.articles.forEach(a => {
@@ -41,6 +42,12 @@ function pushNotice(notice) {
     tr.appendChild(time)
 
     $('notice-list').appendChild(tr)
+}
+
+function resetTag() {
+    window.tag = null
+    showArticlesByTag()
+    $('reset-tag').classList.add('mdui-fab-hide')
 }
 
 async function initNotice() {

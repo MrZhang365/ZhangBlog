@@ -98,6 +98,70 @@ async function handleNotice(e) {
     }
 }
 
+function handleDeleteTag(e) {
+    const id = e.target.getAttribute('data-id')
+    var tags = JSON.parse($(id).getAttribute('data-tags'))
+
+    tags = tags.filter(t => t !== e.target.getAttribute('data-tag'))
+    $(id).setAttribute('data-tags', JSON.stringify(tags))
+    $(`${e.target.getAttribute('data-tag')}-tag`).remove()
+}
+
+async function handleSaveTag(e) {
+    const id = e.target.getAttribute('data-id')
+    var tags = JSON.parse($(id).getAttribute('data-tags'))
+
+    try{
+        await post('/api/article/set-tags', { id, tags })
+        mdui.snackbar('标签修改成功', { position: 'right-bottom' })
+    } catch(err) {
+        mdui.snackbar('标签修改失败', { position: 'right-bottom' })
+    }
+}
+
+function getTagFromInput() {
+    return new Promise(res => {
+        mdui.prompt('请输入标签：', '添加标签', value => res(value.trim()), () => res(null), {
+            confirmText: '添加',
+            cancelText: '取消'
+        })
+    })
+}
+
+async function handleAddTag(e) {
+    const id = e.target.getAttribute('data-id')
+    var tags = JSON.parse($(id).getAttribute('data-tags'))
+
+    const newTag = await getTagFromInput()
+    if (!newTag) return
+    const paperee = document.createElement('div')    // 创建一个MDUI的纸片组件，由于和纸片君ee（paperee）重名，所以就干脆用这个名字 XD
+    paperee.classList.add('mdui-chip')
+    paperee.id = `${newTag}-tag`
+
+    const ee = document.createElement('span')    // 直接用ee XD
+    ee.classList.add('mdui-chip-title')
+    ee.textContent = newTag
+    paperee.appendChild(ee)
+
+    const fire = document.createElement('span')    // 本来想写delete或者close的，然而我却想继续烧纸（
+    fire.classList.add('mdui-chip-delete')
+    fire.setAttribute('data-id', id)
+    fire.setAttribute('data-tag', newTag)
+    fire.onclick = handleDeleteTag
+
+    const fireIcon = document.createElement('i')
+    fireIcon.classList.add('mdui-icon', 'material-icons')
+    fireIcon.innerHTML = '&#xe872;'
+    fireIcon.setAttribute('data-id', id)
+    fireIcon.setAttribute('data-tag', newTag)
+    fire.appendChild(fireIcon)
+    paperee.appendChild(fire)
+    $(`${id}-tags`).appendChild(paperee)
+
+    tags.push(newTag)
+    $(id).setAttribute('data-tags', JSON.stringify(tags))
+}
+
 function pushArticle(article) {
     const panel = document.createElement('div')
     panel.classList.add('mdui-panel-item')
@@ -179,7 +243,74 @@ function pushArticle(article) {
     helperText.id = `helper-text-${article.id}`
     helperText.textContent = '按回车确认，不填则删除密码'
     passwordDiv.appendChild(helperText)
+    div.appendChild(document.createElement('br'))
 
+    div.setAttribute('data-tags', JSON.stringify(article.tags))
+    
+    const tagsDiv = document.createElement('div')
+    tagsDiv.id = `${article.id}-tags`
+    div.appendChild(tagsDiv)
+    const tags = []
+    for (let tag of article.tags) {
+        const paperee = document.createElement('div')    // 创建一个MDUI的纸片组件，由于和纸片君ee（paperee）重名，所以就干脆用这个名字 XD
+        paperee.classList.add('mdui-chip')
+        paperee.id = `${tag}-tag`
+
+        const ee = document.createElement('span')    // 直接用ee XD
+        ee.classList.add('mdui-chip-title')
+        ee.textContent = tag
+        paperee.appendChild(ee)
+
+        const fire = document.createElement('span')    // 本来想写delete或者close的，然而我却想继续烧纸（
+        fire.classList.add('mdui-chip-delete')
+        fire.setAttribute('data-id', article.id)
+        fire.setAttribute('data-tag', tag)
+        fire.onclick = handleDeleteTag
+
+        const fireIcon = document.createElement('i')
+        fireIcon.classList.add('mdui-icon', 'material-icons')
+        fireIcon.innerHTML = '&#xe872;'
+        fireIcon.setAttribute('data-id', article.id)
+        fireIcon.setAttribute('data-tag', tag)
+        fire.appendChild(fireIcon)
+        paperee.appendChild(fire)
+
+        tags.push(paperee)
+    }
+
+    tags.forEach(paperee => {    // 纸片君ee * 2
+        tagsDiv.appendChild(paperee)
+    })
+
+    const tagBtnDiv = document.createElement('div')
+    div.appendChild(tagBtnDiv)
+    const tagAddBtn = document.createElement('button')
+    tagAddBtn.classList.add('mdui-btn', 'mdui-btn-icon', 'mdui-btn-dense', 'mdui-color-theme-accent', 'mdui-ripple')
+    tagAddBtn.type = 'button'
+    tagAddBtn.onclick = handleAddTag
+    tagAddBtn.setAttribute('data-id', article.id)
+    
+    const addIcon = document.createElement('i')
+    addIcon.classList.add('mdui-icon', 'material-icons')
+    addIcon.innerHTML = '&#xe145;'
+    addIcon.setAttribute('data-id', article.id)
+    tagAddBtn.appendChild(addIcon)
+    tagBtnDiv.appendChild(tagAddBtn)
+
+    const tagSaveBtn = document.createElement('button')
+    tagSaveBtn.classList.add('mdui-btn', 'mdui-btn-icon', 'mdui-btn-dense', 'mdui-color-theme-accent', 'mdui-ripple')
+    tagSaveBtn.type = 'button'
+    tagSaveBtn.onclick = handleSaveTag
+    tagSaveBtn.setAttribute('data-id', article.id)
+    
+    const saveIcon = document.createElement('i')
+    saveIcon.classList.add('mdui-icon', 'material-icons')
+    saveIcon.innerHTML = '&#xe161;'
+    saveIcon.setAttribute('data-id', article.id)
+    tagSaveBtn.appendChild(saveIcon)
+    tagBtnDiv.appendChild(tagSaveBtn)
+
+    div.appendChild(document.createElement('br'))
     div.appendChild(document.createElement('br'))
 
     const disableCommentP = document.createElement('p')
