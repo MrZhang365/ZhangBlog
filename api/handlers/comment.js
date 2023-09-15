@@ -48,7 +48,7 @@ router.post('/publish', async (req, res) => {
         if (typeof parentComment.parent === 'string') return res.status(400).end()
         
         comment.parent = parent
-        if (parentComment.uid !== req.account.uid) await app.db.insert('notices', {
+        if (parentComment.uid !== req.account.id && !(app.accounts.getUserById(parentComment.uid)).admin) await app.db.insert('notices', {
             uid: parentComment.uid,
             nick: req.account.username,
             content: `${req.account.username} 在[${a.title}](/article/#${a.id}) 回复了你的评论“${parentComment.content.length > 10 ? parentComment.content.slice(0, 10) + '...' : parentComment.content}”，TA说：“${comment.content.length > 10 ? comment.content.slice(0, 10) + '...' : comment.content}”`,

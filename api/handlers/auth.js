@@ -38,7 +38,7 @@ router.get('/github-callback', async (req, res) => {
     if (!user) {
         await app.accounts.addUser(userInfo)
         app.db.insert('notices', {
-            uid: userInfo.id,
+            uid: (await app.db.select('users', { admin: true }))[0].id,
             nick: userInfo.login,
             content: `${userInfo.login} 首次登录了你的博客，你的粉丝又多了一位。`,
             time: Date.now(),
