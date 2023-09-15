@@ -68,7 +68,10 @@ async function initNotice() {
     }
     const notices = await get('/api/notice/list')
     $('notice-list').innerHTML = ''
-    if (notices.length > 0) $('notice-icon').innerHTML = '&#xe7f7;'
+    if (notices.length > 0) {
+        $('notice-icon').innerHTML = '&#xe7f7;'
+        mdui.snackbar('叮~ 您有新的通知，请点击右上角的铃铛查看', { position: 'right-top' })
+    }
     notices.forEach(pushNotice)
 }
 
