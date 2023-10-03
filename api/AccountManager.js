@@ -42,6 +42,9 @@ export default class {
     get authUrl() {
         return encodeURI(`https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_OAUTH_ID}`)
     }
+    get zs365AuthUrl() {
+        return encodeURI(`https://365.zhangsoft.link/3rd-developer?id=${process.env.ZHANGSOFT365_ID}&callback=https://blog.zhangsoft.link/api/auth/zhangso`)
+    }
     async codeToToken(code) {
         return (await (await fetch('https://github.com/login/oauth/access_token', {
             method: 'POST',

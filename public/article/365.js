@@ -112,6 +112,7 @@ function showComment(comment) {
     div.classList.add('mdui-p-a-2')
 
     const titleH4 = document.createElement('h4')
+    titleH4.classList.add('icon-and-username')    // 感谢 remelens 贡献的代码
 
     const head = document.createElement('img')
     head.src = `https://avatars.githubusercontent.com/u/${comment.uid}`
@@ -170,6 +171,7 @@ function showComment(comment) {
             let div = document.createElement('div')
 
             let titleH4 = document.createElement('h4')
+            titleH4.classList.add('icon-and-username')    // 感谢 remelens 贡献的代码
 
             let head = document.createElement('img')
             head.src = `https://avatars.githubusercontent.com/u/${c.uid}`
