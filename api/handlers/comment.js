@@ -4,7 +4,7 @@ import { default as sha } from 'sha256'
 
 const router = Router()
 router.post('/publish', async (req, res) => {
-    if (Date.now() - req.account.lastComment <= 60000) {
+    if (Date.now() - req.account.lastComment <= 5000) {
         return res.status(429).json({ error: 'fast' })
     }
     if (!(await app.db.select('config', { name: 'disable-comment' }))[0]) {
