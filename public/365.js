@@ -24,6 +24,29 @@ async function initPage() {
             articleAdd(a)
         })
     }
+
+    dressForSpecialDate()
+}
+
+/**
+ * 匹配日期
+ * @param {Number} month 
+ * @param {Number} day 
+ * @returns {Boolean}
+ */
+function matchDate(month, day) {
+    return (new Date()).getMonth() + 1 === month && (new Date()).getDate() === day
+}
+
+/**
+ * 让主页在特殊的日期打扮一下
+ * MrZhang365在2025年12月22日路过：咳咳 几年前的shit代码配上2025新代码 离谱
+ */
+function dressForSpecialDate() {
+    if (matchDate(3, 14)) {
+        // 站长生日
+        mdui.alert(`今天是MrZhang365的${(new Date()).getFullYear() - 2008}岁生日，也是全球数学日。在这个特殊的日子里，让我们祝MrZhang365生日快乐！也希望他的生活会越来越好`, '生日快乐！')
+    }
 }
 
 function pushNotice(notice) {
