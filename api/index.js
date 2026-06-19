@@ -13,6 +13,12 @@ async function load(app) {
 
 async function init(app) {
     app.enable('trust proxy')
+    app.use((req, res) => {
+        res.status(503)
+        res.setHeader('Content-Type', 'text/plain, charset=utf-8')
+        res.send('紧急情况，禁止所有访问')
+    })
+    /*
     app.use((req, res, next) => {
         req.cookies = cookie.parse(req.get('cookie') || '')
         if (req.get('Content-Type') === 'application/json') {
@@ -34,6 +40,7 @@ async function init(app) {
             return next()
         }
     })
+        */
     app.db = new dbManager()
     app.use(app.db.middleWare.bind(app.db))
     app.accounts = new AccountManager(app.db)
