@@ -41,11 +41,11 @@ async function init(app) {
         }
     })
         */
-    app.db = new dbManager()
-    app.use(app.db.middleWare.bind(app.db))
-    app.accounts = new AccountManager(app.db)
-    app.use(app.accounts.middlewareGetAccount.bind(app.accounts))
-    await load(app)
+    //app.db = new dbManager()
+    //app.use(app.db.middleWare.bind(app.db))
+    //app.accounts = new AccountManager(app.db)
+    //app.use(app.accounts.middlewareGetAccount.bind(app.accounts))
+    //await load(app)
 }
 
 global.app = express()
